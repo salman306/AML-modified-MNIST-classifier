@@ -18,22 +18,25 @@ encoder.fit(Y) #transform: encode to label, inverse: get back class
 encodermapping = list(encoder.classes_)
 
 seed = 8
-X_train, X_test, y_train, y_test = train_test_split(X.as_matrix()/255, Y.as_matrix(), test_size=0.1, random_state = seed)
+X_train, X_valid, y_train, y_valid = train_test_split(X.as_matrix()/255, Y.as_matrix(), test_size=0.1, random_state = seed)
 
 X_train = X_train.reshape(X_train.shape[0],64,64,1)
-X_test = X_test.reshape(X_test.shape[0], 64,64,1)
+X_valid = X_valid.reshape(X_valid.shape[0], 64,64,1)
 
 y_train = np_utils.to_categorical(encoder.transform(y_train))
 
 print "X_train:", X_train.shape, y_train.shape
-print "X_test:", X_test.shape, y_test.shape
+print "X_valid:", X_valid.shape, y_valid.shape
 
 
 model = Sequential()
-model.add(Conv2D(6, (5,5), input_shape=(64,64,1)))
+model.add(Conv2D(32, (5,5), input_shape=(64,64,1)))
 model.add(BatchNormalization(axis=-1))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2,2), strides=2))
+model.add(Conv2D(5, (5,5)))
+model.add(BatchNormalization(axis=-1))
+model.add(Activation('relu'))
 model.add(Conv2D(16, (5,5)))
 model.add(BatchNormalization(axis=-1))
 model.add(Activation('relu'))
@@ -52,14 +55,28 @@ sgd = optimizers.SGD(lr=0.01, decay=1e-5, momentum=0.9)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
 model.fit(X_train, y_train, epochs=100, verbose=True, validation_split=0.20)
 
-model.save("steven_model.h5")
-predict_validation = model.predict(X_test)
+predict_validation = model.predict(X_valid)
 
 temp = []
 for instance in predict_validation:
 	temp.append(encodermapping[np.argmax(instance)])
 		    
-print(100*sklearn.metrics.accuracy_score(y_test, temp))
+print(100*sklearn.metrics.accuracy_score(y_valid, temp))
+
+print("> Reading testing set")
+X_test = pd.read_csv("processed_test_x.csv")
+X_test = X_test.iloc[:,1:]
+
+X_test = X_test.as_matrix()/255
+X_test = X_test.reshape(X_test.shape[0], 64,64,1)
+
+predict_test = model.predict(X_test)
+temp_test = []
+for instance in predict_test:
+	temp_test.append(encodermapping[np.argmax(nstance)])
+
+dftestout = pd.DataFrame(temp_test)
+dftestout.to_csv("submission.csv")
 
 
 
