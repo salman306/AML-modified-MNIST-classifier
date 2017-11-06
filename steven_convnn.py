@@ -28,16 +28,19 @@ y_train = np_utils.to_categorical(encoder.transform(y_train))
 print "X_train:", X_train.shape, y_train.shape
 print "X_valid:", X_valid.shape, y_valid.shape
 
+batch_size = 128
+epochs = 100
+
 
 model = Sequential()
 model.add(Conv2D(32, (5,5), input_shape=(64,64,1)))
 model.add(BatchNormalization(axis=-1))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2,2), strides=2))
-model.add(Conv2D(5, (5,5)))
+model.add(Conv2D(64, (5,5)))
 model.add(BatchNormalization(axis=-1))
 model.add(Activation('relu'))
-model.add(Conv2D(16, (5,5)))
+model.add(Conv2D(128, (5,5)))
 model.add(BatchNormalization(axis=-1))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2,2), strides=2))
@@ -53,7 +56,7 @@ model.add(Activation('softmax'))
 
 sgd = optimizers.SGD(lr=0.01, decay=1e-5, momentum=0.9)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
-model.fit(X_train, y_train, epochs=100, verbose=True, validation_split=0.20)
+model.fit(X_train, y_train, batch_size=batch_size, epochs=epochs, verbose=True, validation_data=(X_test, y_test))
 
 predict_validation = model.predict(X_valid)
 
