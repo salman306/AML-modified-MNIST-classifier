@@ -10,6 +10,7 @@ class NNConvModels():
 
 
 	def __init__(self, model_name):
+		print "> Retrieving the model:", model_name
 		self.NUM_CLASSES = 40
 		self.model_name = model_name
 	
@@ -57,18 +58,19 @@ class NNConvModels():
 		model.add(Dense(300, activation='tanh'))
 		model.add(Dropout(0.5))
 		model.add(Dense(300, activation='tanh'))
-		model.add(Dense(len(encodermapping),activation='sigmoid', use_bias = True))
+		model.add(Dense(self.NUM_CLASSES,activation='sigmoid', use_bias = True))
 
 		model.compile(loss = 'categorical_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
 		return model
 
 	def model_steven_samepad(self):
+		""" 92.2274 """
 		model = Sequential()
 		model.add(Conv2D(20, (3, 3),activation='relu',input_shape=(64,64,1), padding='same'))
 		model.add(Conv2D(20, (3, 3),activation='relu',input_shape=(64,64,1), padding='same'))
 		model.add(MaxPooling2D(pool_size=(2,2)))
-		model.add(Conv2D(30, (3, 3),activation='relu', padding='same'))
-		model.add(Conv2D(30, (3, 3),activation='relu', padding='same'))
+		model.add(Conv2D(30, (5, 5),activation='relu', padding='same'))
+		model.add(Conv2D(30, (5, 5),activation='relu', padding='same'))
 		model.add(MaxPooling2D(pool_size=(2,2)))
 		model.add(Conv2D(96, (3, 3),activation='relu', padding='same'))
 		model.add(Conv2D(96, (3, 3),activation='relu', padding='same'))
