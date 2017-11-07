@@ -1,5 +1,6 @@
 import keras
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 from keras.models import Sequential
@@ -24,6 +25,7 @@ X_train = X_train.reshape(X_train.shape[0],64,64,1)
 X_valid = X_valid.reshape(X_valid.shape[0], 64,64,1)
 
 y_train = np_utils.to_categorical(encoder.transform(y_train))
+y_valid= np_utils.to_categorical(encoder.transform(y_valid))
 
 print "X_train:", X_train.shape, y_train.shape
 print "X_valid:", X_valid.shape, y_valid.shape
@@ -43,7 +45,7 @@ model.add(Activation('relu'))
 model.add(Conv2D(128, (5,5)))
 model.add(BatchNormalization(axis=-1))
 model.add(Activation('relu'))
-model.add(MaxPooling2D(pool_size=(2,2), strides=2))
+model.add(MaxPooling2D(pool_size=(2,2), strides=1))
 
 model.add(Flatten())
 
@@ -56,7 +58,7 @@ model.add(Activation('softmax'))
 
 sgd = optimizers.SGD(lr=0.01, decay=1e-5, momentum=0.9)
 model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy'])
-model.fit(X_train, y_train, batch_size=batch_size, epochs=epochs, verbose=True, validation_data=(X_test, y_test))
+model.fit(X_train, y_train, batch_size=batch_size, epochs=epochs, verbose=True, validation_data=(X_valid, y_valid))
 
 predict_validation = model.predict(X_valid)
 
