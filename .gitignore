@@ -1,4 +1,6 @@
 *.txt
+*.hdf5
+Graph*
 *.csv
 *.pyc
 *.swp
